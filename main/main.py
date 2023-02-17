@@ -59,6 +59,18 @@ class Main:
         except Exception as e:
             print(e)
             outSheet.write(count+1,2,"None")
+        try:    
+            print("try1")
+            img = WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.XPATH, "/html/body/div[2]/div/div/div/div[1]/div/div/div/div[1]/div[1]/div[2]/section/main/div[1]/div[1]/article/div/div[1]/div/div/div/div[1]/img")))
+            # print(img.get_attribute('src'))
+            outSheet.write(count+1,1,img.get_attribute('src'))
+        except Exception as e:
+            print(e)
+            print("exception 2")
+            imgs = WebDriverWait(self.driver, 20).until(EC.presence_of_element_located((By.XPATH, "//div[@class='_aagv']")))
+            print(imgs.get_attribute('src'))
+            outSheet.write(count+1,1,imgs.get_attribute('src'))
+        
         outSheet.write(count+1,0,pLink)
         outSheet.write(count+1,3,self.usn)
         outSheet.write(count+1,4,self.cap)
@@ -69,14 +81,17 @@ class Main:
         self.driver.switch_to.window(self.driver.window_handles[0])
     def getHashtag(self,link):
         self.driver.get(link)
+        # sup = BeautifulSoup(self.driver.page_source, 'html.parser')
+        # lnks = sup.find_all()
+        x = 0
         WebDriverWait(self.driver, 20).until(EC.visibility_of_element_located((By.XPATH, "/html/body/div[2]/div/div/div/div[1]/div/div/div/div[1]/div[1]/div[2]/section/main/article/div[2]/div/div[1]/div[1]/a"))).click()
-        for x in range(1,20):
+        for x in range(1,50):
             url = self.driver.current_url
-            print(x,url)
+            print(url)
             self.driver.execute_script("window.open('');")
             self.getPost(url,x)
             WebDriverWait(self.driver, 20).until(EC.visibility_of_element_located((By.XPATH, "/html/body/div[2]/div/div/div/div[2]/div/div/div[1]/div/div[3]/div/div/div/div/div[1]/div/div/div[2]/button"))).click()
             
 mn = Main("B08TVDWM9W")
-mn.getHashtag("https://www.instagram.com/explore/tags/golang/")
+mn.getHashtag("https://www.instagram.com/explore/tags/memekomikindonesia/")
 outWorkbook.close()

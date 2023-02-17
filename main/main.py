@@ -13,7 +13,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 from datetime import datetime
 import undetected_chromedriver as uc
 from bs4 import BeautifulSoup
-from statistics import mean 
+import requests 
 import xlsxwriter
 import time 
 import pandas as pd
@@ -43,6 +43,22 @@ class Main:
         self.driver = webdriver.Chrome(ChromeDriverManager().install(), options=self.options) 
         self.actions = ActionChains(self.driver)
         self.wait = WebDriverWait(self.driver, 30)
+    def getMedia(self,url):
+        payload = {
+            'url': url,
+            'lang_code': 'id',
+            'token': '' # masukkan token di sini
+        }
+        headers = {
+            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36',
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+        response = requests.post('https://fastdl.app/b/', data=payload, headers=headers)
+        soup = BeautifulSoup(response.content, 'html.parser')
+        link = soup.find('a')
+        url = link.get('href')
+        return url
     def getPost(self,pLink,count):
         self.driver.switch_to.window(self.driver.window_handles[1])
         self.driver.get(pLink)
@@ -67,9 +83,11 @@ class Main:
         except Exception as e:
             print(e)
             print("exception 2")
-            imgs = WebDriverWait(self.driver, 20).until(EC.presence_of_element_located((By.XPATH, "//div[@class='_aagv']")))
-            print(imgs.get_attribute('src'))
-            outSheet.write(count+1,1,imgs.get_attribute('src'))
+            imgs = self.getMedia(pLink)
+            # imgs = WebDriverWait(self.driver, 20).until(EC.presence_of_element_located((By.XPATH, "//div[@class='_aagv']")))
+            # print(imgs.get_attribute('src'))
+            print(imgs)
+            outSheet.write(count+1,1,imgs)
         
         outSheet.write(count+1,0,pLink)
         outSheet.write(count+1,3,self.usn)
